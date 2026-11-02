@@ -10,7 +10,12 @@ type SP = Promise<{ club?: string; status?: Status }>;
 
 export default async function SchedulePage({ searchParams }: { searchParams: SP }) {
   const { club, status } = await searchParams;
-  const [clubs, series, list] = await Promise.all([listClubs(), listSeries(), listTournaments({ clubSlug: club, status })]);
+  const [clubs, series, raw] = await Promise.all([listClubs(), listSeries(), listTournaments({ clubSlug: club, status })]);
+  // 进行中 → 即将开始（按日期升序）→ 已结束（最近的在前）
+  const rank = { running: 0, upcoming: 1, finished: 2 } as const;
+  const list = [...raw].sort((a, b) =>
+    rank[a.status] - rank[b.status] ||
+    (a.status === "finished" ? b.startDate.localeCompare(a.startDate) : a.startDate.localeCompare(b.startDate)));
 
   const q = (patch: Record<string, string | undefined>) => {
     const p = new URLSearchParams();

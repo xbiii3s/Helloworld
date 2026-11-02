@@ -77,3 +77,13 @@ src/
 5. **系列赛积分榜**（Player of the Series）、选手个人页、历史战绩。
 6. **通知**：Telegram / Zalo 机器人推送开赛提醒、钱圈、决赛桌。
 7. **合规**：上线前确认越南当地关于扑克赛事信息发布的法律要求，网站只做信息展示，不涉及线上报名付款。
+
+## 截图
+
+| 首页 | 系列赛专页 | 俱乐部模块 |
+|---|---|---|
+| ![](docs/screenshots/1-home.png) | ![](docs/screenshots/2-series-hsop.png) | ![](docs/screenshots/3-club-quads.png) |
+
+| 赛程 | 比赛详情 | 手机版 |
+|---|---|---|
+| ![](docs/screenshots/4-schedule.png) | ![](docs/screenshots/5-tournament.png) | ![](docs/screenshots/6-mobile.png) |

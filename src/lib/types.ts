@@ -41,6 +41,8 @@ export interface Series {
   description: string;
   highlights: string[];
   notes?: string[];
+  /** 主办方官方赛程页 */
+  officialUrl?: string;
   sources: Source[];
 }
 

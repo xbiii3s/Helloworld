@@ -38,6 +38,11 @@ export default async function SeriesPage({ params }: { params: P }) {
         <div className="text-lg">系列赛总保底 <b className="text-chip-gold">{s.totalGuarantee ? formatVND(s.totalGuarantee) : "待公布"}</b>
           {s.eventCount && <span className="ml-3 text-sm text-slate-300">共 {s.eventCount} 场赛事</span>}
         </div>
+        {s.officialUrl && (
+          <a href={s.officialUrl} target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-chip-gold px-4 py-2 text-sm font-semibold text-black hover:brightness-110">
+            查看官方完整赛程 ↗
+          </a>
+        )}
         <ul className="flex flex-wrap gap-2 text-xs">
           {s.highlights.map((h) => <li key={h} className="rounded-full bg-black/30 px-3 py-1">{h}</li>)}
         </ul>

@@ -81,10 +81,12 @@ export const clubs: Club[] = [
     kind: "organizer",
     city: "河内",
     address: "比赛场地：Grand Plaza Hotel Hanoi",
+    website: "https://vietnampokerleague.com",
     facebook: "https://www.facebook.com/vietnampokerleagueVPL/",
     description: "赛事主办方。主办 VPL Vietnam Poker League 与 Hanoi Series of Poker（HSOP）系列，2026 年赛事主要在 Grand Plaza Hotel Hanoi 举行。",
     color: "#15803d",
     sources: [
+      { label: "vietnampokerleague.com 官网", url: "https://vietnampokerleague.com" },
       { label: "VPL Facebook", url: "https://www.facebook.com/vietnampokerleagueVPL/" },
       { label: "HSOP Facebook", url: "https://www.facebook.com/HanoiSOPoker/" },
       { label: "SoMuchPoker · Hanoi Series of Poker", url: "https://somuchpoker.com/events-calendar/tour/hanoi-series-of-poker" },

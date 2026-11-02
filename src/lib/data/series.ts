@@ -15,9 +15,11 @@ export const series: Series[] = [
     highlights: ["总保底 700 亿 ₫", "Main Event 保底 150 亿 ₫", "Main Event 买入 16,500,000 ₫（含服务费）"],
     notes: [
       "pokercalendar.asia 称买入范围 4.5M–16.5M ₫，但其列表中也有 22M / 55M / 66M ₫ 的赛事，范围描述不完整。",
-      "Main Event 各 Flight 日期未查到，请以 HSOP 官方赛程为准。",
+      "Main Event 各 Flight 日期及每场赛事明细请点击上方“查看官方完整赛程”。",
     ],
+    officialUrl: "https://vietnampokerleague.com/series/hsop-iii-2810-811",
     sources: [
+      { label: "VPL 官网 · HSOP III 赛程", url: "https://vietnampokerleague.com/series/hsop-iii-2810-811" },
       { label: "pokercalendar.asia · HSOP Grinder Series III", url: "https://pokercalendar.asia/en/hsop-grinder-series-iii-2026" },
       { label: "SoMuchPoker · Hanoi Series of Poker", url: "https://somuchpoker.com/events-calendar/tour/hanoi-series-of-poker" },
       { label: "VPL Facebook", url: "https://www.facebook.com/vietnampokerleagueVPL/" },
