@@ -13,9 +13,9 @@
 | 首页 | `/` | 进行中 / 即将开始 / 最近结束的系列赛，河内与胡志明市俱乐部 |
 | 赛程 | `/schedule?club=&status=` | 重点赛事列表，可按俱乐部、状态筛选 |
 | 俱乐部列表 | `/clubs` | 所有俱乐部卡片 |
-| **俱乐部模块** | `/clubs/[slug]` | 每个俱乐部独立页面：简介、联系方式、旗下系列赛、进行中 / 常规赛 / 已结束 |
+| **俱乐部模块** | `/clubs/[slug]` | 每个俱乐部独立页面：地址电话官网、注意事项、旗下系列赛、重点赛事、已结束系列赛 |
 | 系列赛列表 | `/series` | 所有系列赛 |
-| **系列赛专页** | `/series/[slug]` | 系列赛独立页面：总保底、亮点、全部 Event（含多 Flight）、冠军榜 |
+| **系列赛专页** | `/series/[slug]` | 系列赛独立页面：日期场地、总保底、亮点、赛事列表、冠军、来源 |
 | **比赛详情 + 实况** | `/tournaments/[id]` | 买入、保底、人次、结果、数据来源；有录入实况时显示级别/盲注、剩余人数、平均筹码、筹码榜、播报 |
 | API | `/api/series`、`/api/tournaments` | 系列赛 / 赛事查询（`club` `series` `status`） |
 | API | `/api/tournaments/[id]/live` | 实况快照（只返回真实录入的数据） |
@@ -60,9 +60,9 @@ src/
 
 ## 数据模型要点
 
-- **Club 俱乐部**：每个俱乐部有自己的 slug、城市、品牌色、联系方式（Zalo / Telegram / Facebook），页面按俱乐部分模块。
-- **Series 系列赛**：属于某个俱乐部，有起止日期、总保底；赛事通过 `seriesSlug` + `eventNo` 关联。
-- **Tournament 比赛**：`buyIn`（进奖池）与 `fee`（服务费）分开存；支持 `flight`（Day 1A / 1B / Day 2）、`reentry`、`lateRegLevel`、`results`。
+- **Club**：俱乐部或赛事主办方（`kind`），含城市、地址、电话、官网、Facebook、`warnings`、`sources`。
+- **Series**：属于某个俱乐部，有起止日期、场地、总保底、赛事数量、`notes`、`sources`；状态（进行中/即将开始/已结束）按日期自动计算。
+- **Tournament**：通过 `seriesSlug` 关联系列赛；`buyIn`（含服务费）、`guarantee`、`entries`、`results` 均为可选，缺失显示“待确认”。
 - 所有金额单位为越南盾，时间统一按 `Asia/Ho_Chi_Minh` 展示。
 
 ## 后续路线图（建议）
@@ -72,7 +72,7 @@ src/
 1. **真实数据库**：PostgreSQL + Prisma（或 Supabase）。只需重写 `src/lib/repo.ts`。
 2. **俱乐部后台**：俱乐部账号登录后录入赛程、更新实况（当前级别、剩余人数、筹码榜、播报）、上传结果；
    `live.ts` 改为读取最新快照。也可对接俱乐部的计时器软件自动同步。
-3. **实时推送**：把 15 秒轮询换成 SSE / WebSocket（或 Supabase Realtime / Pusher）。
+3. **实时推送**：把 30 秒轮询换成 SSE / WebSocket（或 Supabase Realtime / Pusher）。
 4. **多语言**：中文 / Tiếng Việt / English / 한국어（next-intl）。
 5. **系列赛积分榜**（Player of the Series）、选手个人页、历史战绩。
 6. **通知**：Telegram / Zalo 机器人推送开赛提醒、钱圈、决赛桌。
