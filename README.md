@@ -39,6 +39,7 @@ VPL / HSOP（河内）；Pro Poker Club、Saigon Poker Club（胡志明市）；
 npm install
 npm run dev     # http://localhost:3000
 npm run build   # 生产构建
+node preview/build.mjs  # 生成单文件手机预览页 preview/dist/vn-holdem-hub.html
 ```
 
 技术栈：Next.js 15 (App Router) + React 19 + TypeScript + Tailwind CSS。

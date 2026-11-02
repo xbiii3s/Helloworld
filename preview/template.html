@@ -1,0 +1,349 @@
+<title>VN Hold'em Hub</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: felt-table dark app shell — sticky header, single reading column, cards only for series/clubs, tables for schedules */
+:root {
+  --bg: #08130e; --surface: #0f2219; --surface-2: #153126; --line: #24443a;
+  --fg: #e8efe9; --muted: #93a79c; --faint: #5f776b;
+  --gold: #e0b341; --gold-ink: #1b1405; --live: #f0624d; --warn-bg: #3a2e10; --warn-fg: #f2d68a;
+  --font-body: "Be Vietnam Pro", "Noto Sans", system-ui, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
+  --bg: #f3f6f2; --surface: #ffffff; --surface-2: #e7efe9; --line: #cfdcd3;
+  --fg: #11241a; --muted: #4f6559; --faint: #81958a;
+  --gold: #9a6b00; --gold-ink: #fffaf0; --live: #c4321d; --warn-bg: #fbf0d2; --warn-fg: #6b4c00;
+  color-scheme: light; } }
+:root[data-theme="light"] {
+  --bg: #f3f6f2; --surface: #ffffff; --surface-2: #e7efe9; --line: #cfdcd3;
+  --fg: #11241a; --muted: #4f6559; --faint: #81958a;
+  --gold: #9a6b00; --gold-ink: #fffaf0; --live: #c4321d; --warn-bg: #fbf0d2; --warn-fg: #6b4c00;
+  color-scheme: light; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.55; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 4px; }
+.gutter { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 1040px; margin: 0 auto; }
+
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: baseline; gap: 8px; text-decoration: none; font-weight: 800; letter-spacing: -0.01em; }
+.brand .suit { color: var(--gold); }
+.brand small { font-weight: 400; color: var(--muted); font-size: 12px; }
+nav.tabs { display: flex; gap: 4px; }
+nav.tabs a { text-decoration: none; font-size: 14px; color: var(--muted); padding: 6px 10px; border-radius: 999px; }
+nav.tabs a[aria-current="page"] { background: var(--surface-2); color: var(--fg); }
+
+main { padding-block: 24px 48px; display: grid; gap: 36px; }
+section { display: grid; gap: 12px; min-width: 0; }
+main > *, section > * { min-width: 0; }
+h1 { font-size: clamp(26px, 6vw, 38px); line-height: 1.15; margin: 0; font-weight: 800; letter-spacing: -0.02em; text-wrap: balance; }
+h2 { font-size: 19px; margin: 0; font-weight: 600; text-wrap: balance; }
+.sec-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.sec-head a { font-size: 13px; color: var(--muted); }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.gold { color: var(--gold); }
+
+.hero { display: grid; gap: 14px; padding-block: 8px 4px; }
+.hero p.lede { max-width: 60ch; color: var(--muted); }
+.stats { display: flex; gap: 28px; flex-wrap: wrap; }
+.stats div b { display: block; font-size: 26px; font-family: var(--font-num); }
+.stats div span { font-size: 12px; color: var(--muted); letter-spacing: 0.04em; }
+
+.grid2 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+.card { display: grid; gap: 6px; align-content: start; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; text-decoration: none; min-width: 0; }
+.card:hover { border-color: var(--faint); }
+.card .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.card .title { font-weight: 600; font-size: 16px; line-height: 1.3; }
+.club-swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; margin-right: 6px; vertical-align: 1px; }
+
+.pill { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 500; border: 1px solid var(--line); color: var(--muted); }
+.pill.running { color: var(--live); border-color: color-mix(in srgb, var(--live) 50%, transparent); }
+.pill.running::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--live); }
+.pill.upcoming { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 45%, transparent); }
+.pill.warn { color: var(--warn-fg); background: var(--warn-bg); border-color: transparent; }
+
+.table-box { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
+th { text-align: left; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 500; background: var(--surface); padding: 8px 12px; }
+td { padding: 10px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+td.r, th.r { text-align: right; }
+td a { text-decoration: none; font-weight: 600; }
+td a:hover { color: var(--gold); }
+.tbd { color: var(--faint); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; padding: 5px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: grid; gap: 12px; }
+.crumb { font-size: 13px; color: var(--muted); }
+.crumb a { text-decoration: none; }
+.crumb a:hover { color: var(--fg); }
+dl.facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 10px 20px; margin: 0; }
+dl.facts div { min-width: 0; }
+dl.facts dt { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+dl.facts dd { margin: 2px 0 0; overflow-wrap: anywhere; }
+.big { font-size: 22px; font-weight: 600; }
+.copy { margin-left: 6px; font: inherit; font-size: 12px; color: var(--muted); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; cursor: pointer; }
+.notes { display: grid; gap: 6px; }
+.note { background: var(--warn-bg); color: var(--warn-fg); border-radius: 8px; padding: 8px 12px; font-size: 13px; }
+.sources { font-size: 12px; color: var(--muted); }
+.sources a { color: var(--muted); }
+.btn { display: inline-block; justify-self: start; background: var(--gold); color: var(--gold-ink); text-decoration: none; font-weight: 600; font-size: 14px; padding: 9px 16px; border-radius: 10px; }
+.empty { border: 1px dashed var(--line); border-radius: 12px; padding: 16px; color: var(--muted); font-size: 14px; }
+footer { color: var(--faint); font-size: 12px; padding-block: 0 32px; }
+@media (prefers-reduced-motion: no-preference) { .card, .chip { transition: border-color .15s, background .15s; } }
+</style>
+
+<header class="top gutter">
+  <div class="wrap">
+    <a class="brand" href="#"><span class="suit">♠</span> VN Hold'em Hub <small>越南德州赛事中心</small></a>
+    <nav class="tabs" aria-label="主导航">
+      <a href="#" data-tab="home">首页</a>
+      <a href="#schedule" data-tab="schedule">赛程</a>
+      <a href="#clubs" data-tab="clubs">俱乐部</a>
+      <a href="#series" data-tab="series">系列赛</a>
+    </nav>
+  </div>
+</header>
+<main id="app" class="wrap gutter"></main>
+<footer class="wrap gutter">数据整理自公开赛事日历、扑克数据库、俱乐部官网与新闻，每条都附来源；最后核实 2026-11-02。时间为越南时间 (GMT+7)，金额单位越南盾 (₫)。请以俱乐部官方公告为准。</footer>
+
+<script>
+const DATA = __DATA__;
+const { clubs, series, tournaments } = DATA;
+
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }).format(new Date());
+const statusOf = (a, b) => (today < a ? "upcoming" : today > (b || a) ? "finished" : "running");
+series.forEach((s) => (s.status = statusOf(s.startDate, s.endDate)));
+tournaments.forEach((t) => (t.status = statusOf(t.startDate, t.endDate)));
+const clubBy = (slug) => clubs.find((c) => c.slug === slug);
+const seriesBy = (slug) => series.find((s) => s.slug === slug);
+
+const vnd = new Intl.NumberFormat("vi-VN");
+const fullVND = (n) => `${vnd.format(n)} ₫`;
+const compact = (n) => n >= 1e9 ? `${+(n / 1e9).toFixed(2)}B` : n >= 1e6 ? `${+(n / 1e6).toFixed(1)}M` : vnd.format(n);
+const WD = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+const day = (ymd) => { const [y, m, d] = ymd.split("-").map(Number); return `${m}/${d} ${WD[new Date(Date.UTC(y, m - 1, d)).getUTCDay()]}`; };
+const range = (a, b) => (!b || a === b ? day(a) : `${a.slice(5).replace("-", "/")} – ${b.slice(5).replace("-", "/")}`);
+const STATUS = { running: "进行中", upcoming: "即将开始", finished: "已结束" };
+const pill = (s) => `<span class="pill ${s}">${STATUS[s]}</span>`;
+const TBD = `<span class="tbd">待确认</span>`;
+
+function sources(list, notes) {
+  return `<div class="notes">${(notes || []).map((n) => `<p class="note">⚠ ${esc(n)}</p>`).join("")}</div>
+  <p class="sources">数据来源：${list.map((s) => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.label)}</a>`).join(" · ")}</p>`;
+}
+
+function seriesCard(s) {
+  const c = clubBy(s.clubSlug);
+  return `<a class="card" href="#s-${s.slug}">
+    <div class="row"><span class="small gold num">${s.startDate.slice(0, 4)} · ${range(s.startDate, s.endDate)}</span>${pill(s.status)}</div>
+    <div class="title">${esc(s.name)}</div>
+    <div class="small muted"><span class="club-swatch" style="background:${c.color}"></span>${esc(c.name)} · ${esc(s.venue)}</div>
+    <div class="small">总保底 <b class="gold num">${s.totalGuarantee ? compact(s.totalGuarantee) + " ₫" : "待公布"}</b>${s.eventCount ? ` <span class="muted">· ${s.eventCount} 场赛事</span>` : ""}</div>
+  </a>`;
+}
+
+function clubCard(c) {
+  const ss = series.filter((s) => s.clubSlug === c.slug);
+  const running = ss.some((s) => s.status === "running");
+  return `<a class="card" href="#club-${c.slug}">
+    <div class="small muted"><span class="club-swatch" style="background:${c.color}"></span>${esc(c.city)} · ${c.kind === "club" ? "俱乐部" : "赛事主办方"}</div>
+    <div class="title">${esc(c.name)}</div>
+    ${c.address ? `<div class="small muted">${esc(c.address)}</div>` : ""}
+    <div class="chips" style="margin-top:4px">
+      <span class="pill">2026 年 ${ss.length} 个系列赛</span>
+      ${running ? pill("running") : ""}
+      ${c.warnings?.length ? `<span class="pill warn">有注意事项</span>` : ""}
+    </div>
+  </a>`;
+}
+
+function table(list, showClub = true) {
+  if (!list.length) return `<p class="empty">暂无比赛数据。</p>`;
+  return `<div class="table-box"><table>
+    <thead><tr><th>日期</th><th>赛事</th>${showClub ? "<th>俱乐部 / 主办</th>" : ""}<th class="r">买入</th><th class="r">保底</th><th>状态</th></tr></thead>
+    <tbody>${list.map((t) => {
+      const s = seriesBy(t.seriesSlug);
+      return `<tr>
+        <td class="num">${range(t.startDate, t.endDate)}</td>
+        <td><a href="#t-${t.id}">${t.eventNo ? `<span class="muted">#${t.eventNo}</span> ` : ""}${esc(t.name)}</a>${s ? `<div class="small muted">${esc(s.name)}</div>` : ""}</td>
+        ${showClub ? `<td>${esc(clubBy(t.clubSlug).name)}</td>` : ""}
+        <td class="r num">${t.buyIn ? compact(t.buyIn) : TBD}</td>
+        <td class="r num gold">${t.guarantee ? compact(t.guarantee) : TBD}</td>
+        <td>${pill(t.status)}</td></tr>`;
+    }).join("")}</tbody></table></div>`;
+}
+
+const RANK = { running: 0, upcoming: 1, finished: 2 };
+const byStatus = (a, b) => RANK[a.status] - RANK[b.status] ||
+  (a.status === "finished" ? b.startDate.localeCompare(a.startDate) : a.startDate.localeCompare(b.startDate));
+
+const views = {
+  home() {
+    const run = series.filter((s) => s.status === "running");
+    const up = series.filter((s) => s.status === "upcoming").sort(byStatus);
+    const done = series.filter((s) => s.status === "finished").sort(byStatus).slice(0, 4);
+    const city = (name) => clubs.filter((c) => c.city === name).map(clubCard).join("");
+    return `<section class="hero">
+        <h1>越南德州扑克赛事中心</h1>
+        <p class="lede">河内、胡志明市等地真实俱乐部的系列赛、赛程、买入与保底，每条数据都附来源链接。</p>
+        <div class="stats">
+          <div><b>${clubs.length}</b><span>俱乐部 / 主办方</span></div>
+          <div><b>${series.length}</b><span>2026 系列赛</span></div>
+          <div><b style="color:var(--live)">${run.length}</b><span>进行中</span></div>
+        </div>
+      </section>
+      ${run.length ? `<section><h2>正在进行</h2><div class="grid2">${run.map(seriesCard).join("")}</div></section>` : ""}
+      <section><div class="sec-head"><h2>即将开始</h2><a href="#schedule">完整赛程 →</a></div><div class="grid2">${up.map(seriesCard).join("")}</div></section>
+      <section><h2>河内</h2><div class="grid2">${city("河内")}</div></section>
+      <section><h2>胡志明市</h2><div class="grid2">${city("胡志明市")}</div></section>
+      <section><div class="sec-head"><h2>最近结束</h2><a href="#series">全部系列赛 →</a></div><div class="grid2">${done.map(seriesCard).join("")}</div></section>`;
+  },
+
+  schedule() {
+    const withEvents = clubs.filter((c) => tournaments.some((t) => t.clubSlug === c.slug));
+    return `<section><h1>赛程</h1><p class="muted small">各系列赛中已查到买入或保底的重点赛事。进行中和即将开始的排在前面。</p></section>
+      <section>
+        <div class="chips" id="f-club">${[["", "全部"], ...withEvents.map((c) => [c.slug, c.name])].map(([v, l]) => `<button type="button" class="chip" data-v="${v}" aria-pressed="${state.club === v}">${esc(l)}</button>`).join("")}</div>
+        <div class="chips" id="f-status">${[["", "全部状态"], ["running", "进行中"], ["upcoming", "即将开始"], ["finished", "已结束"]].map(([v, l]) => `<button type="button" class="chip" data-v="${v}" aria-pressed="${state.status === v}">${l}</button>`).join("")}</div>
+        <div id="sched">${table(tournaments.filter((t) => (!state.club || t.clubSlug === state.club) && (!state.status || t.status === state.status)).sort(byStatus), !state.club)}</div>
+      </section>`;
+  },
+
+  clubs() {
+    const cities = [...new Set(clubs.map((c) => c.city))];
+    return `<section><h1>俱乐部与主办方</h1></section>` +
+      cities.map((ct) => `<section><h2>${esc(ct)}</h2><div class="grid2">${clubs.filter((c) => c.city === ct).map(clubCard).join("")}</div></section>`).join("");
+  },
+
+  series() {
+    const groups = [["进行中", "running"], ["即将开始", "upcoming"], ["2026 年已结束", "finished"]];
+    return `<section><h1>系列赛</h1></section>` + groups.map(([title, st]) => {
+      const list = series.filter((s) => s.status === st).sort(byStatus);
+      return list.length ? `<section><h2>${title}</h2><div class="grid2">${list.map(seriesCard).join("")}</div></section>` : "";
+    }).join("");
+  },
+
+  club(slug) {
+    const c = clubBy(slug);
+    if (!c) return notFound();
+    const ss = series.filter((s) => s.clubSlug === slug);
+    const active = ss.filter((s) => s.status !== "finished").sort(byStatus);
+    const past = ss.filter((s) => s.status === "finished").sort(byStatus);
+    const contact = (label, value, copy) => value ? `<div><dt>${label}</dt><dd>${copy ? `<span class="num">${esc(value)}</span><button type="button" class="copy" data-copy="${esc(value)}">复制</button>` : value}</dd></div>` : "";
+    return `<section class="panel">
+        <p class="crumb"><a href="#clubs">俱乐部</a> / ${esc(c.city)}</p>
+        <h1><span class="club-swatch" style="background:${c.color};width:14px;height:14px"></span>${esc(c.name)}</h1>
+        <p>${esc(c.description)}</p>
+        <dl class="facts">
+          ${contact("地址", c.address && esc(c.address))}
+          ${contact("电话", c.phone, true)}
+          ${contact("邮箱", c.email, true)}
+          ${contact("官网", c.website && `<a href="${esc(c.website)}" target="_blank" rel="noopener noreferrer">${esc(c.website.replace("https://", ""))}</a>`)}
+          ${contact("Facebook", c.facebook && `<a href="${esc(c.facebook)}" target="_blank" rel="noopener noreferrer">打开主页</a>`)}
+        </dl>
+        ${sources(c.sources, c.warnings)}
+      </section>
+      <section><h2>进行中 / 即将开始的系列赛</h2>${active.length ? `<div class="grid2">${active.map(seriesCard).join("")}</div>` : `<p class="empty">暂未查到即将举办的系列赛。</p>`}</section>
+      <section><h2>重点赛事</h2>${table(tournaments.filter((t) => t.clubSlug === slug).sort(byStatus), false)}</section>
+      ${past.length ? `<section><h2>2026 年已结束</h2><div class="grid2">${past.map(seriesCard).join("")}</div></section>` : ""}`;
+  },
+
+  s(slug) {
+    const s = seriesBy(slug);
+    if (!s) return notFound();
+    const c = clubBy(s.clubSlug);
+    const evs = tournaments.filter((t) => t.seriesSlug === slug);
+    const champs = evs.filter((t) => t.results?.length);
+    return `<section class="panel">
+        <p class="crumb"><a href="#series">系列赛</a> / <a href="#club-${c.slug}">${esc(c.name)}</a></p>
+        <div class="chips">${pill(s.status)}<span class="pill num">${s.startDate.replaceAll("-", "/")} – ${s.endDate.slice(5).replace("-", "/")}</span></div>
+        <h1>${esc(s.name)}</h1>
+        <p class="muted">${esc(s.venue)}</p>
+        <p>${esc(s.description)}</p>
+        <dl class="facts">
+          <div><dt>系列赛总保底</dt><dd class="big num gold">${s.totalGuarantee ? fullVND(s.totalGuarantee) : "待公布"}</dd></div>
+          ${s.eventCount ? `<div><dt>赛事数量</dt><dd class="big num">${s.eventCount} 场</dd></div>` : ""}
+        </dl>
+        <div class="chips">${s.highlights.map((h) => `<span class="pill">${esc(h)}</span>`).join("")}</div>
+        ${s.officialUrl ? `<a class="btn" href="${esc(s.officialUrl)}" target="_blank" rel="noopener noreferrer">查看官方完整赛程 ↗</a>` : ""}
+      </section>
+      <section><h2>赛事</h2><p class="small muted">以下为已查到信息的重点赛事${s.eventCount ? `；全部 ${s.eventCount} 场请见主办方官方渠道` : ""}。</p>${table(evs, false)}</section>
+      ${champs.length ? `<section><h2>冠军</h2><div class="grid2">${champs.map((t) => `<a class="card" href="#t-${t.id}"><span class="small muted">${t.eventNo ? "#" + t.eventNo + " " : ""}${esc(t.name)}</span><span class="title">🏆 ${esc(t.results[0].player)}</span></a>`).join("")}</div></section>` : ""}
+      <section>${sources(s.sources, s.notes)}</section>`;
+  },
+
+  t(id) {
+    const t = tournaments.find((x) => x.id === id);
+    if (!t) return notFound();
+    const c = clubBy(t.clubSlug), s = seriesBy(t.seriesSlug);
+    return `<section class="panel">
+        <p class="crumb"><a href="#club-${c.slug}">${esc(c.name)}</a>${s ? ` / <a href="#s-${s.slug}">${esc(s.name)}</a>` : ""}</p>
+        <div class="chips">${pill(t.status)}<span class="pill num">${range(t.startDate, t.endDate)}</span><span class="pill">${t.gameType}</span></div>
+        <h1>${t.eventNo ? `<span class="muted">#${t.eventNo}</span> ` : ""}${esc(t.name)}</h1>
+        ${s ? `<p class="muted">${esc(s.venue)}</p>` : ""}
+        <dl class="facts">
+          <div><dt>买入（含服务费）</dt><dd class="big num">${t.buyIn ? fullVND(t.buyIn) : TBD}</dd></div>
+          <div><dt>保底</dt><dd class="big num gold">${t.guarantee ? fullVND(t.guarantee) : TBD}</dd></div>
+          <div><dt>参赛人次</dt><dd class="big num">${t.entries ? vnd.format(t.entries) : TBD}</dd></div>
+        </dl>
+      </section>
+      ${t.results?.length ? `<section><h2>结果</h2><div class="table-box"><table><tbody>${t.results.map((r) => `<tr><td class="num">${r.place}</td><td>${esc(r.player)}</td><td class="r num gold">${r.prize ? fullVND(r.prize) : "—"}</td></tr>`).join("")}</tbody></table></div></section>`
+        : t.status !== "finished" ? `<section><h2>比赛实况</h2><p class="empty">${t.status === "running" ? "比赛正在进行，实况数据尚未接入（需俱乐部录入或对接计时系统）。接入后这里会显示级别、盲注、剩余人数、平均筹码、筹码榜和播报。" : "比赛开始后，这里会显示级别、盲注、剩余人数、平均筹码、筹码榜和播报。"}</p></section>` : ""}
+      <section>${sources(t.sources, t.notes)}</section>`;
+  },
+};
+
+function notFound() { return `<section><h1>找不到这个页面</h1><p><a href="#">回到首页</a></p></section>`; }
+
+const state = { club: "", status: "" };
+function render() {
+  const h = location.hash.slice(1);
+  let html, tab = "home";
+  if (!h) html = views.home();
+  else if (["schedule", "clubs", "series"].includes(h)) { html = views[h](); tab = h; }
+  else if (h.startsWith("club-")) { html = views.club(h.slice(5)); tab = "clubs"; }
+  else if (h.startsWith("s-")) { html = views.s(h.slice(2)); tab = "series"; }
+  else if (h.startsWith("t-")) { html = views.t(h.slice(2)); tab = "schedule"; }
+  else html = notFound();
+  document.getElementById("app").innerHTML = html;
+  document.querySelectorAll("nav.tabs a").forEach((a) => {
+    if (a.dataset.tab === tab) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
+  });
+}
+
+document.addEventListener("click", (e) => {
+  const chip = e.target.closest(".chip");
+  if (chip) {
+    const key = chip.parentElement.id === "f-club" ? "club" : "status";
+    state[key] = chip.dataset.v;
+    render();
+    return;
+  }
+  const cp = e.target.closest(".copy");
+  if (cp) {
+    const done = () => { cp.textContent = "已复制"; setTimeout(() => (cp.textContent = "复制"), 1500); };
+    navigator.clipboard?.writeText(cp.dataset.copy).then(done, () => {
+      const r = document.createRange(); r.selectNodeContents(cp.previousElementSibling);
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    });
+  }
+});
+window.addEventListener("hashchange", () => { render(); window.scrollTo(0, 0); });
+render();
+</script>
