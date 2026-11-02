@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { compactVND, formatDate } from "@/lib/format";
+import { SeriesCard } from "@/components/SeriesCard";
 import { listClubs, listSeries } from "@/lib/repo";
 
 export const dynamic = "force-dynamic";
@@ -7,19 +6,22 @@ export const metadata = { title: "系列赛" };
 
 export default async function SeriesList() {
   const [series, clubs] = await Promise.all([listSeries(), listClubs()]);
+  const groups = [
+    { title: "进行中", list: series.filter((s) => s.status === "running") },
+    { title: "即将开始", list: series.filter((s) => s.status === "upcoming") },
+    { title: "2026 年已结束", list: series.filter((s) => s.status === "finished").reverse() },
+  ];
   return (
-    <div>
-      <h1 className="mb-4 text-2xl font-bold">系列赛</h1>
-      <div className="grid gap-4 md:grid-cols-2">
-        {series.map((s) => (
-          <Link key={s.slug} href={`/series/${s.slug}`} className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5 hover:border-amber-400">
-            <div className="text-xs text-amber-300">{formatDate(s.startDate)} – {formatDate(s.endDate)} · {clubs.find((c) => c.slug === s.clubSlug)?.name}</div>
-            <div className="mt-1 text-lg font-semibold">{s.name}</div>
-            <div className="mt-1 text-sm text-slate-400">{s.description}</div>
-            <div className="mt-3 text-sm">总保底 <b className="text-chip-gold">{compactVND(s.totalGuarantee)} ₫</b></div>
-          </Link>
-        ))}
-      </div>
+    <div className="space-y-8">
+      <h1 className="text-2xl font-bold">系列赛</h1>
+      {groups.filter((g) => g.list.length).map((g) => (
+        <section key={g.title}>
+          <h2 className="mb-3 text-lg font-semibold text-slate-300">{g.title}</h2>
+          <div className="grid gap-4 md:grid-cols-2">
+            {g.list.map((s) => <SeriesCard key={s.slug} s={s} club={clubs.find((c) => c.slug === s.clubSlug)} />)}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }

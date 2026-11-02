@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </header>
         <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
         <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-slate-500">
-          所有时间均为越南时间 (GMT+7)。金额单位：越南盾 (₫)。当前为演示数据。
+          数据整理自公开赛事日历、扑克数据库与新闻，每条均附来源；最后核实 2026-11-02。时间为越南时间 (GMT+7)，金额单位越南盾 (₫)。请以俱乐部官方公告为准。
         </footer>
       </body>
     </html>

@@ -1,92 +1,84 @@
-/** 核心数据模型。现在由 mock 数据提供，后续可替换为数据库 / 后台 CMS。 */
+/**
+ * 核心数据模型。
+ * 原则：只收录能查到来源的真实信息；查不到的字段留空，页面显示“待确认”，绝不编造。
+ */
 
 export type GameType = "NLH" | "PLO" | "PLO5" | "Mixed";
-export type TournamentStatus = "upcoming" | "registering" | "live" | "break" | "finished";
+export type Status = "upcoming" | "running" | "finished";
+
+export interface Source {
+  label: string;
+  url: string;
+}
 
 export interface Club {
   slug: string;
   name: string;
-  /** 越南语 / 本地名称 */
-  localName?: string;
-  city: string;
-  address: string;
+  kind: "club" | "organizer";
+  city: "河内" | "胡志明市" | "下龙湾" | string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  facebook?: string;
   description: string;
-  /** 品牌主色，用于俱乐部模块的配色 */
   color: string;
-  contact: { phone?: string; zalo?: string; telegram?: string; facebook?: string };
+  /** 需要用户注意的事项（来源矛盾、资质变动等） */
+  warnings?: string[];
+  sources: Source[];
 }
 
 export interface Series {
   slug: string;
   name: string;
-  shortName: string;
+  /** 主办俱乐部 / 组织方 */
   clubSlug: string;
-  startDate: string; // ISO
-  endDate: string; // ISO
+  venue: string;
+  startDate: string; // YYYY-MM-DD（越南时间）
+  endDate: string;
+  totalGuarantee?: number; // VND
+  eventCount?: number;
   description: string;
-  /** 系列赛总保底（VND） */
-  totalGuarantee: number;
   highlights: string[];
+  notes?: string[];
+  sources: Source[];
 }
 
-export interface PayoutRule {
-  /** 名次范围，例如 [1,1]、[10,12] */
-  places: [number, number];
-  /** 奖池百分比（每人） */
-  percent: number;
-}
-
-export interface BlindLevel {
-  level: number;
-  sb: number;
-  bb: number;
-  ante: number;
-  /** 该级别后是否休息（分钟） */
-  breakAfter?: number;
+export interface Result {
+  place: number;
+  player: string;
+  prize?: number;
 }
 
 export interface Tournament {
   id: string;
-  clubSlug: string;
   seriesSlug?: string;
-  /** 系列赛中的赛事编号，如 Event #5 */
+  clubSlug: string;
   eventNo?: number;
   name: string;
   gameType: GameType;
-  startTime: string; // ISO
-  /** 进入奖池的买入（VND） */
-  buyIn: number;
-  /** 服务费（VND） */
-  fee: number;
-  guarantee: number;
-  startingStack: number;
-  levelMinutes: number;
-  /** 截止报名的级别 */
-  lateRegLevel: number;
-  reentry: "freezeout" | "unlimited" | number;
-  /** 多日赛的 Day 标识，如 "Day 1A" */
-  flight?: string;
-  status?: TournamentStatus;
-  /** 已完成比赛的结果 */
-  results?: { place: number; player: string; country?: string; prize: number }[];
-  /** 预估或实际参赛人数（用于实况模拟） */
-  expectedEntries: number;
-  notes?: string;
+  startDate: string; // YYYY-MM-DD
+  endDate?: string; // 多日赛
+  startTime?: string; // HH:mm
+  /** 总买入（含服务费），VND */
+  buyIn?: number;
+  guarantee?: number;
+  entries?: number;
+  results?: Result[];
+  notes?: string[];
+  sources: Source[];
 }
 
+/** 比赛实况（由俱乐部/工作人员录入，或对接计时系统）。没有录入时为空。 */
 export interface LiveSnapshot {
   tournamentId: string;
-  status: TournamentStatus;
   updatedAt: string;
-  level: BlindLevel | null;
-  nextLevel: BlindLevel | null;
-  /** 当前级别剩余秒数 */
-  secondsLeftInLevel: number;
-  entries: number;
-  playersLeft: number;
-  prizePool: number;
-  avgStack: number;
-  registrationOpen: boolean;
-  chipLeaders: { player: string; country?: string; chips: number }[];
-  feed: { time: string; text: string }[];
+  level?: number;
+  blinds?: string; // "2,000/4,000 (4,000)"
+  entries?: number;
+  playersLeft?: number;
+  prizePool?: number;
+  avgStack?: number;
+  chipLeaders?: { player: string; chips: number }[];
+  feed?: { time: string; text: string }[];
 }

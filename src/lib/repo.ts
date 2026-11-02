@@ -1,29 +1,26 @@
 import { clubs } from "./data/clubs";
-import { buildSeed } from "./data/seed";
-import { dayKey } from "./format";
-import { getLiveSnapshot } from "./live";
-import type { Club, Series, Tournament, TournamentStatus } from "./types";
+import { liveSnapshots } from "./data/live";
+import { series } from "./data/series";
+import { tournaments } from "./data/tournaments";
+import { todayVN } from "./format";
+import type { Club, LiveSnapshot, Series, Status, Tournament } from "./types";
 
 /**
- * 数据访问层（Repository）。页面和 API 只通过这里取数据。
- * 将来换成数据库（如 PostgreSQL + Prisma）或 Headless CMS 时，只需要改这个文件。
+ * 数据访问层。页面和 API 只通过这里取数据；
+ * 以后换成数据库 / 后台录入，只需要改这个文件。
  */
 
-let cache: { day: string; series: Series[]; tournaments: Tournament[] } | null = null;
-
-function seed() {
-  const day = dayKey(new Date().toISOString());
-  if (!cache || cache.day !== day) cache = { day, ...buildSeed(day) };
-  return cache;
+export function statusOf(start: string, end: string | undefined, today = todayVN()): Status {
+  if (today < start) return "upcoming";
+  if (today > (end ?? start)) return "finished";
+  return "running";
 }
 
-export type TournamentWithStatus = Tournament & { liveStatus: TournamentStatus };
+export type SeriesWithStatus = Series & { status: Status };
+export type TournamentWithStatus = Tournament & { status: Status };
 
-function withStatus(t: Tournament): TournamentWithStatus {
-  return { ...t, liveStatus: t.status === "finished" ? "finished" : getLiveSnapshot(t).status };
-}
-
-const byStart = (a: Tournament, b: Tournament) => +new Date(a.startTime) - +new Date(b.startTime);
+const ws = (s: Series): SeriesWithStatus => ({ ...s, status: statusOf(s.startDate, s.endDate) });
+const wt = (t: Tournament): TournamentWithStatus => ({ ...t, status: statusOf(t.startDate, t.endDate) });
 
 export async function listClubs(): Promise<Club[]> {
   return clubs;
@@ -33,38 +30,35 @@ export async function getClub(slug: string): Promise<Club | undefined> {
   return clubs.find((c) => c.slug === slug);
 }
 
-export async function listSeries(clubSlug?: string): Promise<Series[]> {
-  return seed().series.filter((s) => !clubSlug || s.clubSlug === clubSlug);
+export async function listSeries(f: { clubSlug?: string; status?: Status } = {}): Promise<SeriesWithStatus[]> {
+  return series
+    .map(ws)
+    .filter((s) => !f.clubSlug || s.clubSlug === f.clubSlug)
+    .filter((s) => !f.status || s.status === f.status)
+    .sort((a, b) => a.startDate.localeCompare(b.startDate));
 }
 
-export async function getSeries(slug: string): Promise<Series | undefined> {
-  return seed().series.find((s) => s.slug === slug);
+export async function getSeries(slug: string): Promise<SeriesWithStatus | undefined> {
+  const s = series.find((x) => x.slug === slug);
+  return s && ws(s);
 }
 
-export interface TournamentFilter {
-  clubSlug?: string;
-  seriesSlug?: string;
-  gameType?: string;
-  status?: TournamentStatus | "active";
-  from?: string;
-}
-
-export async function listTournaments(f: TournamentFilter = {}): Promise<TournamentWithStatus[]> {
-  return seed()
-    .tournaments.filter((t) => !f.clubSlug || t.clubSlug === f.clubSlug)
+export async function listTournaments(
+  f: { clubSlug?: string; seriesSlug?: string; status?: Status } = {},
+): Promise<TournamentWithStatus[]> {
+  return tournaments
+    .map(wt)
+    .filter((t) => !f.clubSlug || t.clubSlug === f.clubSlug)
     .filter((t) => !f.seriesSlug || t.seriesSlug === f.seriesSlug)
-    .filter((t) => !f.gameType || t.gameType === f.gameType)
-    .filter((t) => !f.from || +new Date(t.startTime) >= +new Date(f.from))
-    .sort(byStart)
-    .map(withStatus)
-    .filter((t) => {
-      if (!f.status) return true;
-      if (f.status === "active") return t.liveStatus === "live" || t.liveStatus === "break";
-      return t.liveStatus === f.status;
-    });
+    .filter((t) => !f.status || t.status === f.status)
+    .sort((a, b) => a.startDate.localeCompare(b.startDate) || (a.eventNo ?? 0) - (b.eventNo ?? 0));
 }
 
 export async function getTournament(id: string): Promise<TournamentWithStatus | undefined> {
-  const t = seed().tournaments.find((x) => x.id === id);
-  return t && withStatus(t);
+  const t = tournaments.find((x) => x.id === id);
+  return t && wt(t);
+}
+
+export async function getLive(id: string): Promise<LiveSnapshot | undefined> {
+  return liveSnapshots[id];
 }
