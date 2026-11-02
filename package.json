@@ -1,0 +1,26 @@
+{
+  "name": "vn-holdem-hub",
+  "version": "0.1.0",
+  "private": true,
+  "description": "越南德州扑克赛事中心 —— 各俱乐部赛程、买入、奖励结构与比赛实况",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "15.5.28",
+    "react": "19.1.10",
+    "react-dom": "19.1.10"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "3.4.19",
+    "typescript": "^5.6.0"
+  }
+}
